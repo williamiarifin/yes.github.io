@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyLearn - Learn Python Interactive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --bg-light: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-primary: #202124;
+            --text-secondary: #5F6368;
+            --border-color: #DADCE0;
+            --code-bg: #282C34;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header / Navbar */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            gap: 2px;
+        }
+
+        .logo span.b { color: var(--google-blue); }
+        .logo span.r { color: var(--google-red); }
+        .logo span.y { color: var(--google-yellow); }
+        .logo span.g { color: var(--google-green); }
+
+        .progress-bar-container {
+            width: 200px;
+            background-color: #E8EAED;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 25%;
+            background-color: var(--google-green);
+            transition: width 0.3s ease;
+        }
+
+        /* Layout Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 280px;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+        }
+
+        .nav-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-left: 0.75rem;
+        }
+
+        .nav-item {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border: none;
+            border-radius: 24px;
+            background: transparent;
+            color: var(--text-primary);
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #F1F3F4;
+        }
+
+        .nav-item.active {
+            background-color: #E8F0FE;
+            color: var(--google-blue);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .lesson-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .lesson-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .lesson-card p {
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        /* Interactive Code Sandbox */
+        .editor-container {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .editor-header {
+            background-color: #21252B;
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ABB2BF;
+            font-size: 0.85rem;
+        }
+
+        textarea.code-input {
+            width: 100%;
+            height: 120px;
+            background-color: var(--code-bg);
+            color: #98C379;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            padding: 1rem;
+            border: none;
+            resize: vertical;
+            outline: none;
+        }
+
+        .action-bar {
+            padding: 0.75rem 1rem;
+            background-color: #21252B;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-run {
+            background-color: var(--google-blue);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-run:hover {
+            background-color: #1a73e8;
+        }
+
+        .console-output {
+            background-color: #1E2125;
+            color: #DCDFE4;
+            font-family: 'Fira Code', monospace;
+            padding: 1rem;
+            border-top: 1px solid #3E4451;
+            min-height: 50px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        /* Quiz Component */
+        .quiz-section {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--google-blue);
+            background-color: #F8F9FA;
+        }
+
+        .quiz-feedback {
+            margin-top: 1rem;
+            font-weight: 500;
+            padding: 0.75rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .quiz-feedback.correct {
+            display: block;
+            background-color: #E6F4EA;
+            color: var(--google-green);
+        }
+
+        .quiz-feedback.incorrect {
+            display: block;
+            background-color: #FCE8E6;
+            color: var(--google-red);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            aside { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">
+            <span class="b">P</span>
+            <span class="r">y</span>
+            <span class="y">L</span>
+            <span class="b">e</span>
+            <span class="g">a</span>
+            <span class="r">r</span>
+            <span class="y">n</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Course Progress</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <aside>
+            <div class="nav-title">Python Fundamentals</div>
+            <button class="nav-item active" onclick="loadLesson(0)">1. Hello, World!</button>
+            <button class="nav-item" onclick="loadLesson(1)">2. Variables & Types</button>
+            <button class="nav-item" onclick="loadLesson(2)">3. Conditionals (If/Else)</button>
+            <button class="nav-item" onclick="loadLesson(3)">4. Loops (For Loops)</button>
+        </aside>
+
+        <main>
+            <div class="lesson-card">
+                <h2 id="lesson-title">1. Hello, World!</h2>
+                <p id="lesson-desc">
+                    Welcome to Python! The <code>print()</code> function is used to output text to the screen. 
+                    Try modifying the text inside the quotation marks below and click <strong>Run Code</strong>.
+                </p>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span>main.py</span>
+                        <span>Python 3.x Simulator</span>
+                    </div>
+                    <textarea id="code-editor" class="code-input" spellcheck="false">print("Hello, World!")</textarea>
+                    <div class="action-bar">
+                        <button class="btn-run" onclick="runCode()">Run Code ►</button>
+                    </div>
+                    <div class="console-output" id="console-output">Output will appear here...</div>
+                </div>
+
+                <div class="quiz-section">
+                    <h3>Knowledge Check</h3>
+                    <p style="margin-top: 0.5rem;" id="quiz-question">Which function is used to display text on the screen in Python?</p>
+                    <div id="quiz-options">
+                        </div>
+                    <div class="quiz-feedback" id="quiz-feedback"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const lessons = [
+            {
+                title: "1. Hello, World!",
+                desc: "Welcome to Python! The <code>print()</code> function displays information on the screen. Anything inside quotation marks <code>\"...\"</code> is treated as a text string.",
+                defaultCode: 'print("Hello, World!")\nprint("Welcome to Python!")',
+                question: "Which keyword is used to display output in Python?",
+                options:
