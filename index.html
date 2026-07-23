@@ -340,4 +340,165 @@
                 desc: "Welcome to Python! The <code>print()</code> function displays information on the screen. Anything inside quotation marks <code>\"...\"</code> is treated as a text string.",
                 defaultCode: 'print("Hello, World!")\nprint("Welcome to Python!")',
                 question: "Which keyword is used to display output in Python?",
-                options:
+                options: [
+                    { text: "console.log()", correct: false },
+                    { text: "print()", correct: true },
+                    { text: "System.out.println()", correct: false }
+                ]
+            },
+            {
+                title: "2. Variables & Types",
+                desc: "Variables are containers for storing data values. Python creates a variable the moment you assign a value to it using the <code>=</code> operator.",
+                defaultCode: 'name = "Alex"\nage = 16\nprint(name)\nprint(age)',
+                question: "How do you assign the value 10 to a variable named 'score'?",
+                options: [
+                    { text: "var score = 10", correct: false },
+                    { text: "score := 10", correct: false },
+                    { text: "score = 10", correct: true }
+                ]
+            },
+            {
+                title: "3. Conditionals (If/Else)",
+                desc: "Conditional statements allow your program to make decisions using <code>if</code>, <code>elif</code>, and <code>else</code> based on boolean conditions.",
+                defaultCode: 'score = 85\nif score >= 80:\n    print("Great job! You passed!")\nelse:\n    print("Keep practicing!")',
+                question: "What Python keyword is used to test secondary conditions if the first 'if' statement fails?",
+                options: [
+                    { text: "else if", correct: false },
+                    { text: "elif", correct: true },
+                    { text: "then", correct: false }
+                ]
+            },
+            {
+                title: "4. Loops (For Loops)",
+                desc: "A <code>for</code> loop is used to iterate over a sequence (like a range of numbers). Python's <code>range(n)</code> function generates numbers from 0 up to n-1.",
+                defaultCode: 'for i in range(5):\n    print("Loop iteration:", i)',
+                question: "What output does range(3) generate?",
+                options: [
+                    { text: "1, 2, 3", correct: false },
+                    { text: "0, 1, 2", correct: true },
+                    { text: "0, 1, 2, 3", correct: false }
+                ]
+            }
+        ];
+
+        let currentLessonIndex = 0;
+
+        function loadLesson(index) {
+            currentLessonIndex = index;
+            const lesson = lessons[index];
+
+            // Update Active Tab UI
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, idx) => {
+                if (idx === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Update Progress Bar
+            const progress = ((index + 1) / lessons.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Populate Content
+            document.getElementById('lesson-title').innerHTML = lesson.title;
+            document.getElementById('lesson-desc').innerHTML = lesson.desc;
+            document.getElementById('code-editor').value = lesson.defaultCode;
+            document.getElementById('console-output').textContent = "Output will appear here...";
+
+            // Populate Quiz
+            document.getElementById('quiz-question').textContent = lesson.question;
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.style.display = 'none';
+
+            lesson.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt.text;
+                btn.onclick = () => checkQuiz(opt.correct);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function runCode() {
+            const code = document.getElementById('code-editor').value;
+            const outputElement = document.getElementById('console-output');
+            
+            outputElement.textContent = "";
+
+            // Simulated Lightweight Python Parser for basic statements
+            try {
+                const lines = code.split('\n');
+                let logs = [];
+                let variables = {};
+
+                lines.forEach(line => {
+                    let trimmed = line.trim();
+                    
+                    // Simple variable assignment parsing
+                    if (trimmed.includes('=') && !trimmed.startsWith('if') && !trimmed.startsWith('print')) {
+                        let [varName, val] = trimmed.split('=').map(s => s.trim());
+                        variables[varName] = eval(val);
+                    }
+                    
+                    // Simple print parsing
+                    if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
+                        let content = trimmed.substring(6, trimmed.length - 1).trim();
+                        
+                        // Check if printing a string literal
+                        if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
+                            logs.push(content.slice(1, -1));
+                        } 
+                        // Check variable lookup
+                        else if (variables.hasOwnProperty(content)) {
+                            logs.push(variables[content]);
+                        } 
+                        // Simple expression evaluation
+                        else {
+                            try {
+                                logs.push(Function(`'use strict'; return (${content})`)());
+                            } catch {
+                                logs.push(content);
+                            }
+                        }
+                    }
+
+                    // Simple for loop range parser
+                    if (trimmed.startsWith('for ') && trimmed.includes('in range(')) {
+                        let num = parseInt(trimmed.match(/\(([^)]+)\)/)[1]);
+                        for(let i = 0; i < num; i++) {
+                            logs.push("Loop iteration: " + i);
+                        }
+                    }
+                });
+
+                if (logs.length > 0) {
+                    outputElement.textContent = logs.join('\n');
+                } else {
+                    outputElement.textContent = "[Program executed with no printable output]";
+                }
+            } catch (err) {
+                outputElement.textContent = "SyntaxError: Unable to parse simulation code.";
+            }
+        }
+
+        function checkQuiz(isCorrect) {
+            const feedback = document.getElementById('quiz-feedback');
+            if (isCorrect) {
+                feedback.className = 'quiz-feedback correct';
+                feedback.textContent = ' Correct! Great job.';
+            } else {
+                feedback.className = 'quiz-feedback incorrect';
+                feedback.textContent = ' Not quite. Try again!';
+            }
+        }
+
+        // Initialize First Lesson
+        loadLesson(0);
+    </script>
+</body>
+</html>
